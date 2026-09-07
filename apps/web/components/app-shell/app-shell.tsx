@@ -45,27 +45,31 @@ function NavLinks({ onNavigate, mobile = false }: { onNavigate?: () => void; mob
 function MobileBottomNav() {
   const pathname = usePathname();
   const { data: me } = useMe();
+  const { data: session } = useSession();
+  const user = session?.user;
   const allItems = NAV_GROUPS.flatMap((group) => group.items).filter((item) => !item.requires || me?.permissions.includes(item.requires));
-  const primaryHrefs = ["/", "/scan", "/cylinders", "/sales"];
+  const primaryHrefs = ["/", "/cylinders", "/sales"];
   const items = primaryHrefs.map((href) => allItems.find((item) => item.href === href)).filter(Boolean) as typeof allItems;
   const hasMoreActive = allItems.some((item) => !primaryHrefs.includes(item.href) && pathname.startsWith(item.href));
-  return <nav aria-label="Primary navigation" className="fixed inset-x-3 bottom-3 z-30 grid h-[72px] grid-cols-5 items-center rounded-[22px] border border-primary/15 bg-card/95 px-2 shadow-2xl shadow-primary/20 backdrop-blur-xl md:hidden">
-    {items.map((item) => {
+  const displayName = user?.name || "Workspace user";
+  const displayEmail = user?.email || "Frontend preview account";
+  return <nav aria-label="Primary navigation" className="fixed inset-x-3 bottom-3 z-30 grid h-[74px] grid-cols-5 items-center rounded-[24px] border border-primary/15 bg-card/95 px-2 shadow-2xl shadow-primary/20 backdrop-blur-xl md:hidden">
+    {items.slice(0, 2).map((item) => {
       const Icon = item.icon;
       const active = pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href));
-      return <Link key={item.href} href={item.href} className={cn("flex min-w-0 flex-col items-center gap-1 rounded-2xl px-1 py-2 text-[10px] font-semibold text-muted-foreground transition-all", active && "bg-primary text-primary-foreground shadow-lg shadow-primary/25")}>
-        <Icon className="size-5" /><span className="truncate">{item.label}</span>
-      </Link>;
+      return <Link key={item.href} href={item.href} className={cn("flex min-w-0 flex-col items-center gap-1 rounded-2xl px-1 py-2 text-[10px] font-semibold text-muted-foreground transition-all", active && "bg-primary text-primary-foreground shadow-lg shadow-primary/25")}><Icon className="size-5" /><span className="truncate">{item.label}</span></Link>;
     })}
+    {allItems.some((item) => item.href === "/scan") && <Link href="/scan" aria-label="Scan cylinder" className="-mt-5 flex size-14 flex-col items-center justify-center gap-0.5 justify-self-center rounded-full border-4 border-background bg-primary text-primary-foreground shadow-xl shadow-primary/30 transition-transform active:scale-95"><Search className="size-5" /><span className="text-[9px] font-bold">Scan</span></Link>}
+    <Link href="/sales" className={cn("flex min-w-0 flex-col items-center gap-1 rounded-2xl px-1 py-2 text-[10px] font-semibold text-muted-foreground transition-all", pathname.startsWith("/sales") && "bg-primary text-primary-foreground shadow-lg shadow-primary/25")}><Package className="size-5" /><span>Sales</span></Link>
     <Sheet>
-      <SheetTrigger render={<button type="button" className={cn("flex min-w-0 flex-col items-center gap-1 rounded-2xl px-1 py-2 text-[10px] font-semibold text-muted-foreground transition-all", hasMoreActive && "bg-primary text-primary-foreground shadow-lg shadow-primary/25")} />}>
-        <Menu className="size-5" /><span>More</span>
+      <SheetTrigger render={<button type="button" aria-label="Open profile and more navigation" className={cn("flex min-w-0 flex-col items-center gap-1 rounded-2xl px-1 py-1.5 text-[10px] font-semibold text-muted-foreground transition-all", hasMoreActive && "bg-primary text-primary-foreground shadow-lg shadow-primary/25")} />}>
+        <Avatar className="size-6"><AvatarFallback className="bg-muted text-[9px] font-bold">{initials(displayName)}</AvatarFallback></Avatar><span className="truncate">Profile</span>
       </SheetTrigger>
-      <SheetContent side="bottom" className="rounded-t-[28px] px-4 pb-8 pt-3">
-        <SheetTitle className="px-2 pb-3 text-left text-lg">All workspace tools</SheetTitle>
-        <div className="grid grid-cols-3 gap-2">
-          {allItems.filter((item) => !primaryHrefs.includes(item.href)).map((item) => { const Icon = item.icon; return <Link key={item.href} href={item.href} className="flex min-h-20 flex-col items-center justify-center gap-2 rounded-2xl bg-muted/70 px-2 text-center text-xs font-medium transition-colors hover:bg-primary/10 hover:text-primary"><Icon className="size-5" /><span>{item.label}</span></Link>; })}
-        </div>
+      <SheetContent side="bottom" className="rounded-t-[30px] px-4 pb-8 pt-3">
+        <SheetTitle className="sr-only">Profile and workspace navigation</SheetTitle>
+        <div className="flex items-center gap-3 rounded-2xl bg-primary/10 p-3"><Avatar className="size-12"><AvatarFallback className="bg-primary text-primary-foreground">{initials(displayName)}</AvatarFallback></Avatar><div className="min-w-0"><p className="truncate font-semibold">{displayName}</p><p className="truncate text-xs text-muted-foreground">{displayEmail}</p><p className="mt-1 text-[10px] font-semibold uppercase tracking-wider text-primary">Workspace admin</p></div></div>
+        <div className="mt-5 flex items-center justify-between px-1"><p className="text-sm font-semibold">Workspace tools</p><span className="text-xs text-muted-foreground">{allItems.length} available</span></div>
+        <div className="mt-3 grid grid-cols-3 gap-2">{allItems.filter((item) => !primaryHrefs.includes(item.href) && item.href !== "/scan" && item.href !== "/sales").map((item) => { const Icon = item.icon; return <Link key={item.href} href={item.href} className="flex min-h-20 flex-col items-center justify-center gap-2 rounded-2xl bg-muted/70 px-2 text-center text-xs font-medium transition-colors hover:bg-primary/10 hover:text-primary"><Icon className="size-5" /><span>{item.label}</span></Link>; })}</div>
       </SheetContent>
     </Sheet>
   </nav>;
