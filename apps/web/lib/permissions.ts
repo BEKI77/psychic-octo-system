@@ -1,0 +1,31 @@
+/** Mirrors apps/api/src/auth/permissions.ts — kept in sync by hand for now. */
+export const PERMISSIONS = [
+  "CYLINDER_CREATE",
+  "CYLINDER_UPDATE",
+  "CYLINDER_VIEW",
+  "CYLINDER_TYPE_MANAGE",
+  "WAREHOUSE_VIEW",
+  "WAREHOUSE_MANAGE",
+  "SUPPLIER_VIEW",
+  "SUPPLIER_MANAGE",
+  "INVENTORY_RECEIVE",
+  "INVENTORY_ISSUE",
+  "INVENTORY_RETURN",
+  "INVENTORY_TRANSFER",
+  "INVENTORY_ADJUST",
+  "MAINTENANCE_MANAGE",
+  "CUSTOMER_CREATE",
+  "CUSTOMER_UPDATE",
+  "CUSTOMER_VIEW",
+  "PAYMENT_CREATE",
+  "PAYMENT_VOID",
+  "CREDIT_APPROVE",
+  "APPROVAL_REVIEW",
+  "REPORT_VIEW",
+  "AUDIT_LOG_VIEW",
+  "USER_VIEW",
+  "USER_MANAGE",
+  "ROLE_MANAGE",
+] as const;
+
+export type PermissionCode = (typeof PERMISSIONS)[number];
