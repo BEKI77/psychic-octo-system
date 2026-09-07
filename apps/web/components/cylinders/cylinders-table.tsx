@@ -48,7 +48,28 @@ export function CylindersTable({ filters }: { filters: CylinderFilters }) {
 
   return (
     <>
-      <div className="overflow-x-auto rounded-md border">
+      <div className="flex flex-col gap-3 md:hidden">
+        {cylinders?.map((cylinder) => (
+          <div key={cylinder.id} className="rounded-2xl border bg-card p-4 shadow-sm">
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <p className="truncate font-semibold">{cylinder.internalCode}</p>
+                <p className="mt-1 text-xs text-muted-foreground">{cylinder.serialNumber} · {cylinder.cylinderType.code}</p>
+              </div>
+              <DropdownMenu>
+                <DropdownMenuTrigger render={<Button variant="ghost" size="icon" />}><MoreHorizontal className="size-4" /></DropdownMenuTrigger>
+                <DropdownMenuContent align="end"><DropdownMenuItem onClick={() => setEditing(cylinder)}>Edit</DropdownMenuItem><DropdownMenuItem onClick={() => setTransferring(cylinder)}>Transfer</DropdownMenuItem><DropdownMenuItem onClick={() => setAdjusting(cylinder)}>Adjust</DropdownMenuItem><DropdownMenuItem variant="destructive" onClick={() => handleDelete(cylinder)}>Delete</DropdownMenuItem></DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+            <div className="mt-4 flex items-center justify-between gap-2 border-t pt-3">
+              <span className="text-xs text-muted-foreground">{cylinder.currentWarehouse ? `${cylinder.currentWarehouse.code}${cylinder.currentLocation ? ` / ${cylinder.currentLocation.code}` : ""}` : "No location"}</span>
+              <div className="flex gap-1.5"><AvailabilityBadge status={cylinder.availabilityStatus} /><ConditionBadge status={cylinder.conditionStatus} /></div>
+            </div>
+          </div>
+        ))}
+        {cylinders?.length === 0 && <p className="rounded-2xl border border-dashed p-8 text-center text-sm text-muted-foreground">No cylinders match these filters.</p>}
+      </div>
+      <div className="hidden overflow-x-auto rounded-xl border md:block">
         <Table>
           <TableHeader>
             <TableRow>
