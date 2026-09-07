@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { getSessionCookie } from "better-auth/cookies";
+import { FRONTEND_TEST_MODE } from "@/lib/frontend-test-mode";
 
 // Route protection is UX-only: it just checks whether a session cookie is
 // present, it never validates it. The NestJS API is the authority (design
@@ -10,7 +11,7 @@ const PUBLIC_PATHS = ["/login"];
 
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const hasSession = Boolean(getSessionCookie(request));
+  const hasSession = FRONTEND_TEST_MODE || Boolean(getSessionCookie(request));
   const isPublicPath = PUBLIC_PATHS.some((path) => pathname === path);
 
   if (!hasSession && !isPublicPath) {
